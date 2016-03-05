@@ -11,21 +11,87 @@
 <body>
 <div id="result"></div>
 <canvas id="myCanvas" width="2500" height="2500"></canvas>
-<img id="map" src="https://raw.githubusercontent.com/hnstimme/verkehrsfluss/gh-pages/screengrabs/map-5.%20M%C3%A4rz%202016%20um%2014%3A40%3A56%20MEZ.png">
+<img id="map" src="bild1.png">
+<script src="https://code.jquery.com/jquery-2.2.1.js"></script>
 <script>
   
+  $(document).ready(function(){
+
   var colorCodes = {
-        grün: [131, 200, 79, "grün"],
-        orange: [238, 124, 2, "orange"],
-        rot: [229, 0, 0, "rot"],
-        dunkelrot: [157, 19, 19, "dunkelrot"]
+        gruen: [132, 202, 80, "gruen"],
+        orange: [240, 125, 2, "orange"],
+        rot: [230, 0, 0, "rot"],
+        dunkel: [160, 19, 19, "dunkel"]
     };
-    
+
+    var width=2500;
+    var height=2500;
+    var numberOfBytesPerPixel=4;
+    var northEast={lat:49.17777593186794,lng:9.264521598815918};
+    var southWest={lat:49.107590311031515,lng:9.157233238220213};
+
+    var lngPerYpixel=(northEast.lng - southWest.lng) / height;
+    var latPerXpixel=(northEast.lat - southWest.lat) / width;
+
     var canvas=document.getElementById("myCanvas");
     var ctx=canvas.getContext("2d");
     var img=document.getElementById("map");
     ctx.drawImage(img, 0, 0);
-    
+
+    var imageData=ctx.getImageData(0, 0, 2500, 2500);
+
+    var results=[
+
+    ]
+
+    for (var pixelLine = 0; pixelLine < height; pixelLine += 1) {
+        var ypixel = pixelLine * width * numberOfBytesPerPixel
+    for (var xpixel = 0; xpixel < width * numberOfBytesPerPixel; xpixel += numberOfBytesPerPixel) 
+    {
+        var red = imageData.data[ypixel + xpixel];
+        var green = imageData.data[ypixel + xpixel + 1];
+        var blue = imageData.data[ypixel + xpixel + 2];
+
+        var checkColor = function (colorCode) {
+            if (results[colorCode[3]]==undefined){
+                    results[colorCode[3]]=0
+                }
+                if (Math.abs(colorCode[0]-red)<=5 && Math.abs(colorCode[1]-green)<=5 && Math.abs(colorCode[2]-blue)<=5) {
+                
+                results.push(
+                    {
+                "type": "Feature",
+                "properties": {
+                    "marker-color": "rgb("+red+", "+green+", "+blue+")",
+                },
+                "geometry": {
+                "type": "Point",
+                "coordinates": [
+                southWest.lat + latPerXpixel * (xpixel / numberOfBytesPerPixel),
+                northEast.lng + lngPerYpixel * (pixelLine)
+        ]}
+      })
+            }
+        };
+
+        checkColor(colorCodes.gruen);
+        checkColor(colorCodes.orange);
+        checkColor(colorCodes.rot);
+        checkColor(colorCodes.dunkel);
+    }}
+
+    var geojson = {"type": "FeatureCollection",
+    "features": results}
+
+    console.log (geojson)
+    window.geojson=geojson
+
+    ctx.putImageData(imageData, 0, 0);
+
+});
+
+
 </script>
+<br><br><br/>
 </body>
 </html>
