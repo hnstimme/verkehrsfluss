@@ -10,7 +10,8 @@
 </head>
 <body>
 <div id="result"></div>
-<canvas id="myCanvas" width="1024" height="1024"></canvas>
+<canvas id="myCanvas" width="2500" height="2500"></canvas>
+<img id="map" src="https://raw.githubusercontent.com/hnstimme/verkehrsfluss/gh-pages/screengrabs/map-5.%20M%C3%A4rz%202016%20um%2014%3A40%3A56%20MEZ.png">
 <script>
   
   var colorCodes = {
@@ -19,6 +20,11 @@
         rot: [229, 0, 0, "rot"],
         dunkelrot: [157, 19, 19, "dunkelrot"]
     };
+    
+    var canvas=document.getElementById("myCanvas");
+    var ctx=canvas.getContext("2d");
+    var img=document.getElementById("map");
+    ctx.drawImage(img, 0, 0);
     
 </script>
 </body>
